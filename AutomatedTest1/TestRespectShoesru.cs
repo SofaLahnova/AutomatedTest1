@@ -8,12 +8,9 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 
-/// <summary>
-/// //////////////////////////////////respect
-/// </summary>
-namespace AutomatedTest1
+namespace RespectShoesAutomatedTests
 {
-    public class Tests
+    public class RespectShoesRu
     {
         IWebDriver driver;
 
@@ -27,7 +24,7 @@ namespace AutomatedTest1
         }
 
         [Test]
-        public void TestPriceFilt()
+        public void TestPriceFilter()
         {
             driver.FindElement(By.CssSelector(".slider-one")).Click();
             driver.FindElement(By.CssSelector(".in-left-catalog--price")).Click();
@@ -38,21 +35,19 @@ namespace AutomatedTest1
 
             driver.FindElement(By.XPath("//input[@value='ПРИМЕНИТЬ ВСЕ ФИЛЬТРЫ']")).Click();
 
-            //
             new WebDriverWait(driver, TimeSpan.FromSeconds(5)).Until(x => driver.FindElements(By.XPath("//*[contains(@class,'lds-ring-container') and (@style='')]")).Any());
             new WebDriverWait(driver, TimeSpan.FromSeconds(30)).Until(x => driver.FindElements(By.XPath("//*[contains(@class,'lds-ring-container') and (@style='')]")).Count == 0);
 
-
             int[] actualVlues = Array.ConvertAll(driver.FindElements(By.CssSelector(".card__price-num")).Select(webPrice => webPrice.Text.Replace(" ", "")).ToArray<string>(), s => int.Parse(s));
-            actualVlues.ToList().ForEach(actualPrice => Assert.True(actualPrice <= 5000, "Error in Price filter"));
-            Thread.Sleep(5000);
+            actualVlues.ToList().ForEach(actualPrice => Assert.True(actualPrice >= 1000 && actualPrice <= 5000, "Error in Price filter"));
+            
         }
 
         [Test]
         public void NegativeSignUpTest()
         {
             driver.FindElement(By.XPath("//*[@id='auth-button']/..")).Click();
-            driver.FindElement(By.XPath("//*[@for='vkl20']")).Click();
+            driver.FindElement(By.XPath("//label[./span[.='Регистрация']]")).Click();
 
             driver.FindElement(By.XPath("//input[@name='REGISTER[NAME]']")).SendKeys("Test");
             driver.FindElement(By.XPath("//input[@name='REGISTER[EMAIL]']")).SendKeys("fbsdhfkha@mail.ru");
@@ -62,10 +57,7 @@ namespace AutomatedTest1
 
             driver.FindElement(By.XPath("//input[@name='register_submit_button']")).Click();
 
-
-            Assert.IsTrue(driver.FindElement(By.CssSelector(".actual")).Displayed, "There was no error text for an empty mandatory field with a piccha");
-            Thread.Sleep(5000);
-
+            Assert.IsTrue(driver.FindElement(By.CssSelector("#err-captcha_word-reg-form-popup.error-field")).Displayed, "There was no error text for an empty mandatory field with a piccha");
 
         }
 
@@ -77,9 +69,7 @@ namespace AutomatedTest1
             new Actions(driver).MoveToElement(driver.FindElement(By.XPath("//*[@class='card__delivery_icons']"))).Build().Perform();
             Assert.IsTrue(driver.FindElement(By.XPath("//*[@class='card__delivery_icons']//*[contains (@class, 'icon__tooltip')]")).Displayed, "Tooltip has not appeared");
             Assert.AreEqual("Возможна доставка домой, в офис или в пункт выдачи", driver.FindElement(By.XPath("//*[@class='card__delivery_icons']//*[contains (@class, 'icon__tooltip')]")).Text.Replace("\"", "").Trim(), "The text does not match");
-            Thread.Sleep(5000);
-
-
+    
         }
         [TearDown]
         public void CleanUp()
